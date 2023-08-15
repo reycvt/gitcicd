@@ -43,3 +43,5 @@ jobs:
             cd /home/adi_kannatasik/gitcicd
             git pull origin main
             git status
+            node -v
+            node index.js
