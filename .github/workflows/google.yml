@@ -1,0 +1,37 @@
+name: Deploy to GCP
+
+on:
+  push:
+    branches:
+      - main 
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm ci
+
+      # - name: Build application
+      #   run: npm run build # Adjust this script according to your app
+
+      - name: Authenticate with GCP
+        uses: google-github-actions/auth@v0.5
+        with:
+          credentials: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+
+      - name: Deploy to VM
+        run: |
+          ssh adi_kannatasik@$VM_IP_ADDRESS "cd /home/adi_kannatasik/gitcicd/ && git pull origin main && npm install && node index.js"
+        env:
+          VM_IP_ADDRESS: ${{ secrets.VM_IP_ADDRESS }}
+          VM_SSH_KEY: ${{ secrets.VM_SSH_KEY }}
