@@ -8,6 +8,9 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    if: ${{ success() && (github.ref == 'refs/heads/main') }}
+    concurrency:
+      group: ci-${{ github.ref }}
 
     steps:
       - name: Checkout code
@@ -30,8 +33,13 @@ jobs:
       #     credentials: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
 
       - name: Deploy to VM
-        run: |
-          ssh adi_kannatasik@$VM_IP_ADDRESS "cd /home/adi_kannatasik/gitcicd/ && git pull origin main && npm install && node index.js"
-        env:
-          VM_IP_ADDRESS: ${{ secrets.VM_IP_ADDRESS }}
-          VM_SSH_KEY: ${{ secrets.VM_SSH_KEY }}
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY_SERVER_DEV }}
+          port: 22
+          script: |
+            cd /home/adi_kannatasik/gitcicd
+            git pull origin main
+            git status
