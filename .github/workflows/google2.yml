@@ -1,0 +1,23 @@
+name: Deploy ke VM Instance GCP
+
+on:
+  push:
+    branches:
+      - main 
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout kode
+        uses: actions/checkout@v2
+
+      - name: Deploy ke Instance VM GCP
+        id: deploy-vm
+        uses: google-github-actions/ssh-compute@v0
+        with:
+          instance_name: 'cicd' # Ganti dengan nama instance Anda
+          zone: 'asia-southeast2-a' # Ganti dengan zona instance Anda
+          ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY_SERVER_DEV }}
+          command: 'cd /home/adi_kannatasik/gitcicd && git pull origin main && npm install && node index.js' # Sesuaikan dengan perintah yang sesuai
